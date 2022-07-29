@@ -187,69 +187,23 @@ Listening UDP now to: { address: '0.0.0.0', family: 'IPv4', port: 12020 }
 
 The sending of the data is a little bit more complicated from codeys PLC side as the network variable list needs to be imported from `.GVL` file.
 
-There are many ways to do it.
-
-1. Create .gvl file using helper function from codesys-client library (see below) and then import it to PLC.
-2. Create NVL (sender) at the PLC and export it to .gvl file. Then delete the NVL from PLC and import the .gvl file back as NVL (receiver).
-3. Use Notepad++ or similar editor to create .gvl file manually
-
-## Creating GVL file using helper function
-
-You can call `createNvlFile()` directly from command line.
-
-**IMPORTANT NOTE: THIS FUNCTIONALITY MIGHT CHANGE**
-
-```
-node -e "require('codesys-client').createNvlFile(LIST_ID, UDP_PORT, VARIABLE_DECLARATION, TARGET_FILE)"
-```
-
-Example with
-* List ID: 100
-* UDP port: 12023
-* NVL like the following
-
-
-`NVL_ReceiveTest`:
+## Creating GVL file
+1. Open web page https://jisotalo.github.io/others/nvl-file-generator.html or `nvl-file-generator.html` in the root directory.
+2. Enter details and copy-paste variable declaration for network variable list
+    * Filename: `NVL_ReceiveTest.GVL`
+    * List ID: `100`
+    * UDP port: `12023`
+    * Declaration:
 ```
 {attribute 'qualified_only'}
 VAR_GLOBAL
   DataToReceive : ST_Data;
 END_VAR
 ```
-* Target file: `NVL_ReceiveTest.GVL`
 
+3. Press `Download .GVL file` and save the produced file locally somewhere (will be used in next chapter).
 
-```
-node -e "require('codesys-client').createNvlFile(100, 12023, 'DataToReceive : ST_Data;', './NVL_ReceiveTest.GVL')"
-```
-
-The `NVL_ReceiveTest.GVL` file is created:
-
-```xml
-<GVL>
-<Declarations><![CDATA[{attribute 'qualified_only'}
-VAR_GLOBAL
-DataToReceive : ST_Data;
-END_VAR]]></Declarations>
-<NetvarSettings Protocol="UDP">
-  <ListIdentifier>100</ListIdentifier>
-  <Pack>True</Pack>
-  <Checksum>False</Checksum>
-  <Acknowledge>False</Acknowledge>
-  <CyclicTransmission>True</CyclicTransmission>
-  <TransmissionOnChange>False</TransmissionOnChange>
-  <TransmissionOnEvent>False</TransmissionOnEvent>
-  <Interval>T#10ms</Interval>
-  <MinGap>T#10ms</MinGap>
-  <EventVariable>
-  </EventVariable>
-  <ProtocolSettings>
-    <ProtocolSetting Name="Broadcast Adr." Value="255.255.255.255" />
-    <ProtocolSetting Name="Port" Value="12023" />
-  </ProtocolSettings>
-</NetvarSettings>
-</GVL>
-```
+![image](https://user-images.githubusercontent.com/13457157/181707384-d64eda07-782b-40ce-a4d1-48c1ef16aa9d.png)
 
 
 ## Codesys PLC side
