@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codesys PLC network variable list (NVL) .GVL file generator</title>
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8em;
+    }
+    textarea {
+      font-family: 'Consolas';
+    }
+    td {
+      vertical-align: top;
+    }
+    .bg {
+      background-color: lightgray;
+    }
+    .center {
+      text-align: center;
+    }
+    .bolded {
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Codesys PLC network variable list (NVL) .GVL file generator</h1>
+  <p>
+    Create originally for codesys-client Node.js library:<br>
+    <a href="https://github.com/jisotalo/codesys-client" target="_blank">https://github.com/jisotalo/codesys-client</a><br>
+    <a href="https://www.npmjs.com/package/codesys-client" target="_blank">https://www.npmjs.com/package/codesys-client</a>
+  </p>
+  <p>
+    However, this can be used for any purpose.<br>
+    No data is saved, everything is done in your browser.
+  </p>
+  <form onsubmit="downloadFile();return false;">
+    <table>
+      <tbody>
+        <tr>
+          <td colspan="2" class="bg center">Required settings for both <i>sender</i> and <i>receiver</i></td>
+        </tr>
+        <tr>
+          <td class="bolded">Filename</td>
+          <td><input type="text" id="filename" value="NetworkVariableList.GVL" size="30"></td>
+        </tr>
+        <tr>
+          <td class="bolded">List ID</td>
+          <td><input type="text" id="listID" value="1" size="5"></td>
+        </tr>
+        <tr>
+          <td class="bolded">Broadcast address</td>
+          <td><input type="text" id="broadcastAddress" value="255.255.255.255" size="15"></td>
+        </tr>
+        <tr>
+          <td class="bolded">UDP port</td>
+          <td><input type="text" id="port" value="1202" size="5"></td>
+        </tr>
+        <tr>
+          <td class="bolded">Variable declaration</td>
+          <td>
+            <textarea cols="50" rows="10" id="declaration">{attribute 'qualified_only'}
+VAR_GLOBAL
+  DataToReceive : ST_Data;
+END_VAR</textarea>
+          </td>
+        </tr>
+          <td class="bolded">General</td>
+          <td><input type="checkbox" id="packVariable" checked> <label for="packVariable">Pack variables</label></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type="checkbox" id="checksum"> <label for="checksum">Add checksum</label></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type="checkbox" id="acknowledge"> <label for="acknowledge">Acknowledge</label></td>
+        </tr>
+        <tr>
+          <td colspan="2" class="bg center">Following have no meaning when using as <i>receiver</i></td>
+        </tr>
+        <tr>
+        <tr>
+          <td class="bolded">Cyclic transmission</td>
+          <td>
+            <input 
+              type="checkbox" 
+              id="cyclicEnable" 
+              onchange="changeInputEnable(this, 'cyclicInterval')"> 
+            <label for="cyclicEnable">Enable</label><br>
+            Interval (ms): <input type="text" id="cyclicInterval" size="5" value="T#100ms" disabled>
+          </td>
+        </tr>
+        <tr>
+          <td class="bolded">Transmit on change</td>
+          <td>
+            <input 
+              type="checkbox" 
+              id="onChangeEnable" 
+              onchange="changeInputEnable(this, 'onChangeMinGap')"> 
+            <label for="onChangeEnable">Enable</label><br>
+            Min. gap (ms): <input type="text" id="onChangeMinGap" size="5" value="T#50ms" disabled>
+          </td>
+        </tr>
+        <tr>
+          <td class="bolded">Transmit on event</td>
+          <td>
+            <input 
+              type="checkbox" 
+              id="onEventEnable" 
+              onchange="changeInputEnable(this, 'onEventVariable')"> 
+            <label for="onEventEnable">Enable</label><br>
+            Variable: <input type="text" id="onEventVariable" size="20" disabled>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" class="bg center"><input type="submit" value="Download .GVL file"></td>
+        </tr>
+        <tr>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </form>
+  <p>
+    MIT license - Copyright Jussi Isotalo - <a href="https://github.com/jisotalo" target="_blank">https://github.com/jisotalo</a><br>
+  </p>
+
+  <script>
+    function changeInputEnable(sender, inputID) {
+      sender.checked 
+        ? document.getElementById(inputID).removeAttribute('disabled')
+        : document.getElementById(inputID).setAttribute('disabled', true);
+    }
+
+    function downloadFile() {
+      const data = {
+        filename: document.getElementById('filename').value,
+        listID: document.getElementById('listID').value,
+        broadcastAddress: document.getElementById('broadcastAddress').value,
+        port: document.getElementById('port').value,
+        declaration: document.getElementById('declaration').value,
+        packVariable: document.getElementById('packVariable').checked,
+        checksum: document.getElementById('checksum').checked,
+        acknowledge: document.getElementById('acknowledge').checked,
+        cyclicEnable: document.getElementById('cyclicEnable').checked,
+        cyclicInterval: document.getElementById('cyclicInterval').value,
+        onChangeEnable: document.getElementById('onChangeEnable').checked,
+        onChangeMinGap: document.getElementById('onChangeMinGap').value,
+        onEventEnable: document.getElementById('onEventEnable').checked,
+        onEventVariable: document.getElementById('onEventVariable').value,
+      };
+      
+      console.log('Creating file based on data:', data);
+
+      let gvl = `<GVL>
+<Declarations><![CDATA[${data.declaration}]]></Declarations>
+<NetvarSettings Protocol="UDP">
+  <ListIdentifier>${data.listID}</ListIdentifier>
+  <Pack>${data.packVariable ? 'True' : 'False'}</Pack>
+  <Checksum>${data.checksum ? 'True' : 'False'}</Checksum>
+  <Acknowledge>${data.acknowledge ? 'True' : 'False'}</Acknowledge>
+  <CyclicTransmission>${data.cyclicEnable ? 'True' : 'False'}</CyclicTransmission>
+  <TransmissionOnChange>${data.onChangeEnable ? 'True' : 'False'}</TransmissionOnChange>
+  <TransmissionOnEvent>${data.onEventEnable ? 'True' : 'False'}</TransmissionOnEvent>
+  <Interval>${data.cyclicInterval}</Interval>
+  <MinGap>${data.onChangeMinGap}</MinGap>
+  <EventVariable>${data.onEventVariable}</EventVariable>
+  <ProtocolSettings>
+    <ProtocolSetting Name="Broadcast Adr." Value="${data.broadcastAddress}" />
+    <ProtocolSetting Name="Port" Value="${data.port}" />
+  </ProtocolSettings>
+</NetvarSettings>
+</GVL>`;
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(gvl));
+      element.setAttribute('download', data.filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+  </script>
+</body>
+</html>
+<!--
+MIT License
+
+Copyright (c) 2020 Jussi Isotalo <j.isotalo91@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->

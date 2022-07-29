@@ -1,6 +1,6 @@
 {
   "name": "codesys-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node.js Codesys client for reading and writing PLC data using network variable lists (NVL)",
   "main": "./dist/codesys-client.js",
   "scripts": {
@@ -41,7 +41,8 @@
     "dist/",
     "CHANGELOG.md",
     "README.md",
-    "LICENSE.txt"
+    "LICENSE.txt",
+    "nvl-file-generator.html"
   ],
   "types": "./dist/codesys-client.d.ts"
 }
